@@ -11,12 +11,7 @@ class ProductScraper:
         if not os.path.exists(self.product_csv): 
             self.initialize_csv()
 
-    def initialize_csv(self):
-        # Initialise le fichier CSV avec les en-têtes
-        with open(self.product_csv, "w", encoding="utf-8") as outfile:
-            outfile.write("product_page_url, UPC, title, price_includind_tax, "
-                          "price_excluding_tax, number_available, product_description, "
-                          "category, review_rating, image_url\n")
+
 
     def scrape_product(self, product_url):
         response_product = requests.get(product_url)
