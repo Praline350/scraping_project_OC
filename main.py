@@ -41,7 +41,7 @@ for category in categories:
 
     while True:
         response_category = requests.get(category_url)
-        #print(category_url)
+        print(category_url)
         if response_category.ok:
             links = []
             soup_category = BeautifulSoup(response_category.text, "html.parser")
@@ -57,7 +57,7 @@ for category in categories:
 
             path_csv_folder = os.path.join(csv_folder, f"{title_category.text}.csv")
 
-            with open(path_csv_folder, "w", encoding="utf-8") as outFile:
+            with open(path_csv_folder, "a", encoding="utf-8") as outFile:
                 outFile.write("Titre, Prix\n")
 
                 for link in links:
@@ -78,16 +78,16 @@ for category in categories:
                         print("erreur page livre")
                         break
 
-            if next_button:
-                page_number += 1
-                category_url = category_url.replace("index.html", f"page-{page_number}.html")
-                category_url = category_url.replace(f"page-{page_number-1}", f"page-{page_number}")
+                if next_button:
+                    page_number += 1
+                    category_url = category_url.replace("index.html", f"page-{page_number}.html")
+                    category_url = category_url.replace(f"page-{page_number-1}", f"page-{page_number}")
                 #print(page_number)
                 #print(category_url)
 
-            else:
-                page_number = 1
-                break
+                else:
+                    page_number = 1
+                    break
 
         else:
             print("erreur pagination")
