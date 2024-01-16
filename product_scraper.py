@@ -4,14 +4,8 @@ import unicodedata
 import os
 
 class ProductScraper:
-    def __init__(self, product_csv):
-        self.product_csv = product_csv
-
-        # Crée le fichier CSV s'il n'existe pas
-        if not os.path.exists(self.product_csv): 
-            self.initialize_csv()
-
-
+    def __init__(self):
+        pass
 
     def scrape_product(self, product_url):
         response_product = requests.get(product_url)
@@ -26,12 +20,17 @@ class ProductScraper:
             tax_excl = tds[2]
             availability = tds[5]
             review = tds[6]
+            info_product = []
+            info_product.extend([product_url, upc, title.text, tax_incl, tax_excl, availability, review])
+            print(info_product)
+            return info_product
+        
 
-            # Ajoute les données au fichier CSV
-            with open(self.product_csv, "a", encoding="utf-8") as outfile:
-                outfile.write(f"{product_url}, {upc}, {title.text}, {tax_incl}, "
-                              f"{tax_excl}, {availability}, description, category, "
-                              f"{review}, image\n")
+    
+    def write_product(self, filename, info_product):       
+        with open(f"{filename}", "a", encoding="utf-8") as outfile:
+            outfile.write(f"{info_product[0]}, {info_product[1]}, {info_product[2]}, {info_product[3]},"
+                           f"{info_product[4]}, {info_product[5]}, {info_product[6]}\n")
 
 
 

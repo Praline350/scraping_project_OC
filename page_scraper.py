@@ -15,12 +15,12 @@ class PageScraper:
     def initialize_csv(self, title_category):
         with open(title_category, "w", encoding="utf-8") as outfile:
             outfile.write("product_page_url, UPC, title, price_includind_tax, "
-                          "price_excluding_tax, number_available, product_description, "
-                          "category, review_rating, image_url\n")
+                        "price_excluding_tax, number_available, product_description, "
+                        "category, review_rating, image_url\n")
             
 
     def scrape_page(self,url, page_url):
-        links = []
+        product_url_list = []
         page_number = 1
         while True:
             current_page = f"{url}{page_url}"
@@ -38,7 +38,7 @@ class PageScraper:
                 for h3 in h3s:
                     a = h3.find("a")
                     product_url = "http://books.toscrape.com/catalogue/" + a["href"].replace("../../../", "")
-                    links.append(product_url)
+                    product_url_list.append(product_url)
                 if next_button:
                     page_number += 1
                     page_url = page_url.replace("index.html", "page-1.html")
@@ -50,7 +50,7 @@ class PageScraper:
                     #print('pas de next')
                     break        
         print("page ok")
-        return links
+        return product_url_list
 
 """url = "http://books.toscrape.com/"
 page_url = "catalogue/category/books/mystery_3/page-1.html"
