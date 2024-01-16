@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import unicodedata
 import os
+import csv
 
 class PageScraper:
     def __init__(self, folder_csv) -> None:
@@ -13,10 +14,11 @@ class PageScraper:
             
 
     def initialize_csv(self, title_category):
-        with open(title_category, "w", encoding="utf-8") as outfile:
-            outfile.write("product_page_url, UPC, title, price_includind_tax, "
-                        "price_excluding_tax, number_available, product_description, "
-                        "category, review_rating, image_url\n")
+        with open(title_category, "w", newline='', encoding="utf-8") as outfile:
+            csv_writer = csv.writer(outfile, delimiter=';')
+            csv_writer.writerow(["catégories", "product_page_url", "UPC", "title", "price_includind_tax",
+                             "price_excluding_tax", "number_available", "review_rating", "product_description",
+                             "image_url"])
             
 
     def scrape_page(self,url, page_url):
@@ -49,9 +51,11 @@ class PageScraper:
                 else:
                     #print('pas de next')
                     break        
-        print("page ok")
+        print("page OK")
         return product_url_list
 
+
+#TESTING
 """url = "http://books.toscrape.com/"
 page_url = "catalogue/category/books/mystery_3/page-1.html"
 scraper = PageScraper()

@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import unicodedata
 import os
+import csv
 
 
 class CategoryScraper:
@@ -22,10 +23,12 @@ class CategoryScraper:
                 for a_tag in a_tags:
                     category_url = a_tag["href"]
                     categories.append(category_url)
-        print("category ok")
+        print("category OK")
         return categories, title_category
         
 
+
+#TESTING
 """url = "http://books.toscrape.com/" 
 scraper = CategoryScraper()
 scraper.scrape_category(url)"""

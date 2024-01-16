@@ -2,16 +2,59 @@ import requests
 from bs4 import BeautifulSoup
 import unicodedata
 import os
+import csv
+from PIL import Image
+from io import BytesIO
+import re
+
+
 
 class ProductScraper:
-    def __init__(self):
-        pass
+    def __init__(self, folder_image):
+        self.folder_image = folder_image
+        if not os.path.exists(folder_image):
+            os.makedirs(folder_image)
+        
 
-    def scrape_product(self, product_url):
+    def clean_filename(self, filename):
+        # Supprimer les caractères non valides pour un nom de fichier
+        return re.sub(r'[\\/:"*?<>|]+', '', filename)
+
+    def download_image(self, image_url, title, category):
+        image_response = requests.get(image_url)
+        print(image_url)
+        if image_response.ok:
+            folder_category_image = os.path.join(self.folder_image, category)
+            if not os.path.exists(folder_category_image):
+                os.makedirs(folder_category_image)
+            image = Image.open(BytesIO(image_response.content))
+            cleaned_title = self.clean_filename(title)
+            image_png = os.path.join(folder_category_image, cleaned_title + ".jpg")
+            image.save(image_png, "JPEG")
+            image.close
+            return image_png
+
+        
+        else:
+            print("echec dl image")
+            return None
+        
+
+
+    def scrape_product(self, product_url, category):
         response_product = requests.get(product_url)
         if response_product.ok:
             soup_product = BeautifulSoup(response_product.text, "html.parser")
-            title = soup_product.find("h1")
+            title = soup_product.find("h1").text
+            image = soup_product.find("img", class_="thumbnail")
+            if image:
+                image_url = image['src'].replace("../../", "http://books.toscrape.com/")
+                self.download_image(image_url, title, category)
+            else:
+                image_url = "Pas d'image"
+            
+            product_description = soup_product.findAll("p")
+            product_description = product_description[3].text
             product_td = soup_product.findAll("td")
             tds = [td.text for td in product_td]
 
@@ -21,16 +64,30 @@ class ProductScraper:
             availability = tds[5]
             review = tds[6]
             info_product = []
-            info_product.extend([product_url, upc, title.text, tax_incl, tax_excl, availability, review])
-            print(info_product)
+            info_product.extend([product_url, upc, title, tax_incl, tax_excl, 
+                                 availability, review, product_description, image_url])
+            info_product = [info_product[0],  # l'URL
+                            info_product[1],  # l'UPC
+                            unicodedata.normalize('NFKD', info_product[2]).encode('ascii', 'ignore').decode('utf-8'),  # Titre
+                            info_product[3].replace("Â", ""), #tax incl
+                            info_product[4].replace("Â", ""), #tax excl
+                            unicodedata.normalize('NFKD', info_product[5]).encode('ascii', 'ignore').decode('utf-8'),  # Disponibilité
+                            info_product[6],  # Note de revue
+                            unicodedata.normalize('NFKD', info_product[7]).encode('ascii', 'ignore').decode('utf-8'),  #description
+                            info_product[8]]  # chemin des fichier images dl           
             return info_product
         
 
     
-    def write_product(self, filename, info_product):       
-        with open(f"{filename}", "a", encoding="utf-8") as outfile:
-            outfile.write(f"{info_product[0]}, {info_product[1]}, {info_product[2]}, {info_product[3]},"
-                           f"{info_product[4]}, {info_product[5]}, {info_product[6]}\n")
+    def write_product(self, filename, info_product, title_category):       
+        with open(f"{filename}", "a", newline='', encoding="utf-8") as outfile:
+            csv_writer = csv.writer(outfile, delimiter=';')
+            csv_writer.writerow([title_category, info_product[0], info_product[1], info_product[2], info_product[3],
+                             info_product[4], info_product[5], info_product[6], info_product[7],
+                             info_product[8]])
+            
+    
+
 
 
 
