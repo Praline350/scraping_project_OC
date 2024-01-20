@@ -7,7 +7,7 @@ from PIL import Image
 from io import BytesIO
 import re
 
-
+# créer le dossier images s'il n'existe pas a la création d'une instance
 
 class ProductScraper:
     def __init__(self, folder_image):
@@ -15,17 +15,19 @@ class ProductScraper:
         if not os.path.exists(folder_image):
             os.makedirs(folder_image)
         
+# Supprimes les caractères non valides pour un nom de fichier
 
     def clean_filename(self, filename):
-        # Supprimer les caractères non valides pour un nom de fichier
         return re.sub(r'[\\/:"*?<>|]+', '', filename)
+    
+# télécharges les images 
 
     def download_image(self, image_url, title, category):
         image_response = requests.get(image_url)
-        print(image_url)
         if image_response.ok:
             folder_category_image = os.path.join(self.folder_image, category)
             if not os.path.exists(folder_category_image):
+                #creer un dossier images par categories
                 os.makedirs(folder_category_image)
             image = Image.open(BytesIO(image_response.content))
             cleaned_title = self.clean_filename(title)
@@ -39,7 +41,7 @@ class ProductScraper:
             print("echec dl image")
             return None
         
-
+#Scraping de toutes les infos produit
 
     def scrape_product(self, product_url, category):
         response_product = requests.get(product_url)
@@ -47,22 +49,23 @@ class ProductScraper:
             soup_product = BeautifulSoup(response_product.text, "html.parser")
             title = soup_product.find("h1").text
             image = soup_product.find("img", class_="thumbnail")
+            all_p = soup_product.findAll("p")
+            product_description = all_p[3].text
+            product_td = soup_product.findAll("td")
+            review = soup_product.find("p", class_="star-rating")
+            review = review["class"][1]
             if image:
                 image_url = image['src'].replace("../../", "http://books.toscrape.com/")
                 self.download_image(image_url, title, category)
             else:
                 image_url = "Pas d'image"
-            
-            product_description = soup_product.findAll("p")
-            product_description = product_description[3].text
-            product_td = soup_product.findAll("td")
             tds = [td.text for td in product_td]
+
 
             upc = tds[0]
             tax_incl = tds[3]
             tax_excl = tds[2]
             availability = tds[5]
-            review = tds[6]
             info_product = []
             info_product.extend([product_url, upc, title, tax_incl, tax_excl, 
                                  availability, review, product_description, image_url])
