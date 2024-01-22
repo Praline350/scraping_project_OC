@@ -5,20 +5,24 @@ import os
 import csv
 
 class PageScraper:
-    def __init__(self, folder_csv) -> None:
-        self.visited_page = set()
+    def __init__(self, folder_csv):
         self.folder_csv = folder_csv
-
+        self.visited_url = os.path.join("Visited_url.csv")
         if not os.path.exists(self.folder_csv):
             os.makedirs(folder_csv)
+        if not os.path.exists(self.visited_url):
+            with open(self.visited_url, "w") as memoryFile:
+                memoryFile.write("Url deja visite\n")
+        
             
 
     def initialize_csv(self, title_category):
-        with open(title_category, "w", newline='', encoding="utf-8") as outfile:
-            csv_writer = csv.writer(outfile, delimiter=';')
-            csv_writer.writerow(["catégories", "product_page_url", "UPC", "title", "price_includind_tax",
-                             "price_excluding_tax", "number_available", "review_rating", "product_description",
-                             "image_url"])
+        if not os.path.exists(title_category):
+            with open(title_category, "w", newline='', encoding="utf-8") as outfile:
+                csv_writer = csv.writer(outfile, delimiter=';')
+                csv_writer.writerow(["catégories", "product_page_url", "UPC", "title", "price_includind_tax",
+                                "price_excluding_tax", "number_available", "review_rating", "product_description",
+                                "image_url"])
             
 
     def scrape_page(self,url, page_url):
@@ -26,17 +30,12 @@ class PageScraper:
         page_number = 1
         while True:
             current_page = f"{url}{page_url}"
-            #print(current_page)
             response = requests.get(current_page)            
-            #print(f"acces a {current_page}")
-            if current_page in self.visited_page:
-                break
             if response.ok:
                 soup = BeautifulSoup(response.text, "html.parser")
                 title_category = soup.find("h1")
                 h3s = soup.findAll("h3")
-                next_button = soup.find("li", {"class": "next"})
-                self.visited_page.add(current_page)
+                next_button = soup.find("li", {"class": "next"})              
                 for h3 in h3s:
                     a = h3.find("a")
                     product_url = "http://books.toscrape.com/catalogue/" + a["href"].replace("../../../", "")
@@ -49,10 +48,17 @@ class PageScraper:
                     
                     
                 else:
-                    #print('pas de next')
                     break        
         print("page OK")
         return product_url_list
+    
+    def visited_product(self, product_url):
+        # Lit le fichier CSV pour vérifier si url est deja visité
+        with open(self.visited_url, "r") as memoryFile:
+            csv_reader = csv.reader(memoryFile)
+            for row in csv_reader:
+                if row and row[0] == product_url:
+                    return True
 
 
 #TESTING

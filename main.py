@@ -12,25 +12,25 @@ import time
 start_time = time.time()
 
 
-check_number = 1
+
 url = "http://books.toscrape.com/"
 folder_csv = "Dossier CSV par catégories"
 folder_image ="Books image"
 index_categories = 0
 titles = []
 
-"""Extraction des catégories"""
+#Extraction des catégories
 
 category = CategoryScraper()
 categories, title_category = category.scrape_category(url)
 
 
-"""création dossiers"""
+#création dossiers
 
 page = PageScraper(folder_csv)
 
 
-"""Exctration des titre de catégories et création des fichier CSV"""
+#Exctration des titre de catégories et création des fichier CSV
 
 for title in title_category:
     filename = os.path.join(folder_csv, f"{title}.csv")
@@ -40,17 +40,22 @@ for title in title_category:
 
 product = ProductScraper(folder_image)
 
-"""Exctaction des info de chaque produit, par catégories et écriture dans leurs CSV réspectif"""
-"""Ainsi que l'enregistrement de chaque images dans un dossier separé par catégories"""
+#Exctaction des infos de chaque produit, par catégories et écriture dans leurs CSV réspectif
+#Ainsi que l'enregistrement de chaque images dans un dossier separé par catégories
 
 while index_categories != len(categories):
     product_url_list = page.scrape_page(url, categories[index_categories])
     for product_url in product_url_list:
+        if page.visited_product(product_url):  #si le lien a deja était scrapé break
+            break
         info_product = product.scrape_product(product_url, title_category[index_categories])
         current_filename = os.path.join(folder_csv, f"{title_category[index_categories]}.csv")
-        product.write_product(current_filename, info_product, titles[index_categories] )    
+        product.write_product(current_filename, info_product, titles[index_categories] ) 
+        print(f"Ecriture {titles[index_categories]} OK")
+        with open(page.visited_url, "a") as memoryFile:
+                        memoryFile.write(f"{product_url}\n")   
 
-    print(f"Ecriture {titles[index_categories]} OK")
+    
     index_categories += 1
 
 

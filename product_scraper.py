@@ -20,6 +20,10 @@ class ProductScraper:
     def clean_filename(self, filename):
         return re.sub(r'[\\/:"*?<>|]+', '', filename)
     
+# normalise les caractère de l'argument    
+    def normalize(self, info):
+        return unicodedata.normalize('NFKD', info).encode('ascii', 'ignore').decode('utf-8')
+    
 # télécharges les images 
 
     def download_image(self, image_url, title, category):
@@ -47,10 +51,10 @@ class ProductScraper:
         response_product = requests.get(product_url)
         if response_product.ok:
             soup_product = BeautifulSoup(response_product.text, "html.parser")
-            title = soup_product.find("h1").text
+            title = self.normalize(soup_product.find("h1").text)
             image = soup_product.find("img", class_="thumbnail")
             all_p = soup_product.findAll("p")
-            product_description = all_p[3].text
+            product_description = self.normalize(all_p[3].text)
             product_td = soup_product.findAll("td")
             review = soup_product.find("p", class_="star-rating")
             review = review["class"][1]
@@ -62,32 +66,34 @@ class ProductScraper:
             tds = [td.text for td in product_td]
 
 
-            upc = tds[0]
+            upc = self.normalize(tds[0])
             tax_incl = tds[3]
             tax_excl = tds[2]
-            availability = tds[5]
+            availability = self.normalize(tds[5])
             info_product = []
             info_product.extend([product_url, upc, title, tax_incl, tax_excl, 
                                  availability, review, product_description, image_url])
             info_product = [info_product[0],  # l'URL
                             info_product[1],  # l'UPC
-                            unicodedata.normalize('NFKD', info_product[2]).encode('ascii', 'ignore').decode('utf-8'),  # Titre
+                            info_product[2],  # Titre
                             info_product[3].replace("Â", ""), #tax incl
                             info_product[4].replace("Â", ""), #tax excl
-                            unicodedata.normalize('NFKD', info_product[5]).encode('ascii', 'ignore').decode('utf-8'),  # Disponibilité
+                            info_product[5],  # Disponibilité
                             info_product[6],  # Note de revue
-                            unicodedata.normalize('NFKD', info_product[7]).encode('ascii', 'ignore').decode('utf-8'),  #description
+                            info_product[7],  #description
                             info_product[8]]  # chemin des fichier images dl           
             return info_product
         
 
     
     def write_product(self, filename, info_product, title_category):       
-        with open(f"{filename}", "a", newline='', encoding="utf-8") as outfile:
+        with open(f"{filename}", "a",newline='', encoding="utf-8") as outfile:
             csv_writer = csv.writer(outfile, delimiter=';')
             csv_writer.writerow([title_category, info_product[0], info_product[1], info_product[2], info_product[3],
                              info_product[4], info_product[5], info_product[6], info_product[7],
-                             info_product[8]])
+                             info_product[8]] )
+            
+    
             
     
 
