@@ -7,12 +7,10 @@ import csv
 class PageScraper:
     def __init__(self, folder_csv):
         self.folder_csv = folder_csv
-        self.visited_url = os.path.join("Visited_url.csv")
+        
         if not os.path.exists(self.folder_csv):
             os.makedirs(folder_csv)
-        if not os.path.exists(self.visited_url):
-            with open(self.visited_url, "w") as memoryFile:
-                memoryFile.write("Url deja visite\n")
+        
         
             
 
