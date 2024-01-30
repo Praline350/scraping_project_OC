@@ -19,7 +19,7 @@ class PageScraper:
     def initialize_csv(self, title_category):
         if not os.path.exists(title_category):
             with open(title_category, "w", newline='', encoding="utf-8") as outfile:
-                csv_writer = csv.writer(outfile, delimiter=';')
+                csv_writer = csv.writer(outfile, delimiter=';', quoting = csv.QUOTE_ALL)
                 csv_writer.writerow(["catégories", "product_page_url", "UPC", "title", "price_includind_tax",
                                 "price_excluding_tax", "number_available", "review_rating", "product_description",
                                 "image_url"])
@@ -60,12 +60,6 @@ class PageScraper:
                 if row and row[0] == product_url:
                     return True
 
-
-#TESTING
-"""url = "http://books.toscrape.com/"
-page_url = "catalogue/category/books/mystery_3/page-1.html"
-scraper = PageScraper()
-scraper.scrape_page(url, page_url)"""
 
 
 

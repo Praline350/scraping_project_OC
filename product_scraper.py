@@ -80,15 +80,15 @@ class ProductScraper:
                             info_product[4].replace("Â", ""), #tax excl
                             info_product[5],  # Disponibilité
                             info_product[6],  # Note de revue
-                            info_product[7],  #description
+                            info_product[7].replace('"', "'"),  #description
                             info_product[8]]  # chemin des fichier images dl           
             return info_product
         
 
     
     def write_product(self, filename, info_product, title_category):       
-        with open(f"{filename}", "a",newline='', encoding="utf-8") as outfile:
-            csv_writer = csv.writer(outfile, delimiter=';')
+        with open(f"{filename}", "a", newline='', encoding="utf-8") as outfile:
+            csv_writer = csv.writer(outfile, delimiter=';', quoting = csv.QUOTE_ALL)
             csv_writer.writerow([title_category, info_product[0], info_product[1], info_product[2], info_product[3],
                              info_product[4], info_product[5], info_product[6], info_product[7],
                              info_product[8]] )

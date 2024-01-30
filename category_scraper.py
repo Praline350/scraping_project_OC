@@ -28,7 +28,3 @@ class CategoryScraper:
         
 
 
-#TESTING
-"""url = "http://books.toscrape.com/" 
-scraper = CategoryScraper()
-scraper.scrape_category(url)"""
