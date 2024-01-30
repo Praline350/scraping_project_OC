@@ -11,7 +11,9 @@ Le nom des fichier image sera le titre du livre en question.
 
 Quelques print() sont présents pour s'assurer du bon déroulement du programme ainsi que le module time pour calculer le temps d'execution.
 
-Avant de lancer main.py assurez vous d'avoir préalablement configurer votre environnement grâce à "requirements.txt"
+Avant de lancer main.py assurez vous d'avoir préalablement configurer votre environnement grâce au fichier "requirements.txt"
+
+Pour installé les modules necessaires utilisé la commande pip freeze > requirements.txt
 
 Assurez vous aussi d'avoir bien les modules product_scraper.py, page_scraper.py, category_scraper.py dans le même répertoire que main.py
 
